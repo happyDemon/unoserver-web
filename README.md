@@ -4,6 +4,7 @@ Web server for converting files using [unoserver](https://github.com/unoconv/uno
 
 [![CI/CD](https://github.com/happyDemon/unoserver-web/actions/workflows/main.yml/badge.svg)](https://github.com/happyDemon/unoserver-web/actions/workflows/main.yml)
 [![Publish](https://github.com/happyDemon/unoserver-web/actions/workflows/publish.yml/badge.svg)](https://github.com/happyDemon/unoserver-web/actions/workflows/publish.yml)
+[![codecov](https://codecov.io/gh/happyDemon/unoserver-web/graph/badge.svg?token=2LFC0WZCQE)](https://codecov.io/gh/happyDemon/unoserver-web)
 
 Once the container is up and running http://127.0.0:3000 provides a swagger interface.
 
@@ -77,3 +78,7 @@ Optionally you could include all the google fonts (1GB worth of files) into your
 docker build --build-arg NODE_ENV=production --build-arg GOOGLE_FONTS=1 --tag unoserver-web:dev .
 docker run --rm -p 3000:3000 unoserver-web:dev
 ```
+
+## Thanks
+
+- lynxtaa for the original implementation https://github.com/lynxtaa/unoserver-web

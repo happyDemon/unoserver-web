@@ -8,13 +8,38 @@ on:
 
 jobs:
   tests:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
-      - uses: docker/build-push-action@v6
+      - name: Install base dependencies
+        run: apt-get install -y software-properties-common curl python3 python3-pip --upgrade
+      - name: Install LibreOffice & UnoServer
+        run: |
+          apt-get update && apt-get install -y --no-install-recommends libreoffice
+          export PIP_BREAK_SYSTEM_PACKAGES=1 && pip install unoserver
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
         with:
-          tags: test-image:latest
-          push: false
-      - uses: addnab/docker-run-action@v3
+          node-version: 22.11
+
+      - name: install pnpm
+        run: |
+          corepack disable && corepack enable
+          npm install -g pnpm@latest-10 --force
+
+      - uses: actions/checkout@v4
+
+      - name: Run tests & build coverage
+        run: pnpm install && pnpm run validate && pnpm run build && pnpm run test:coverage
+
+      - name: Upload coverage reports to Codecov
+        if: ${{ !cancelled() }}
+        uses: codecov/codecov-action@v5
         with:
-          image: test-image:latest
-          run: pnpm run validate && pnpm run build && pnpm run test:coverage
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Upload test results to Codecov
+        if: ${{ !cancelled() }}
+        uses: codecov/test-results-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
