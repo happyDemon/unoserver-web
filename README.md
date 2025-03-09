@@ -2,8 +2,8 @@
 
 Web server for converting files using [unoserver](https://github.com/unoconv/unoserver)
 
-![CI/CD](https://github.com/happyDemon/unoserver-web/workflows/CI/CD/badge.svg)
-[![Codecov](https://codecov.io/gh/happyDemon/unoserver-web/graph/badge.svg?token=2LFC0WZCQE)](https://codecov.io/gh/happyDemon/unoserver-web)
+[![CI/CD](https://github.com/happyDemon/unoserver-web/actions/workflows/main.yml/badge.svg)](https://github.com/happyDemon/unoserver-web/actions/workflows/main.yml)
+[![Publish](https://github.com/happyDemon/unoserver-web/actions/workflows/publish.yml/badge.svg)](https://github.com/happyDemon/unoserver-web/actions/workflows/publish.yml)
 
 Once the container is up and running http://127.0.0:3000 provides a swagger interface.
 
