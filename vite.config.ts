@@ -16,6 +16,8 @@ export default defineConfig({
 			reportsDirectory: './coverage',
 			reportOnFailure: true,
 		},
+		reporters: ['default', 'junit'],
+		outputFile: './test-report.junit.xml',
 		snapshotFormat: {
 			escapeString: false,
 			printBasicPrototype: false,

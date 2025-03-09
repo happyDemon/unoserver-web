@@ -25,7 +25,5 @@ jobs:
       - uses: docker/build-push-action@v6
         with:
           tags: happydemon/unoserver-web:${{ steps.package-version.outputs.current-version }}-fonts,happydemon/unoserver-web:latest-fonts
-          build-args:
-            - NODE_ENV=production
-            - GOOGLE_FONTS=1
+          build-args: NODE_ENV=production,GOOGLE_FONTS=1
           push: true
