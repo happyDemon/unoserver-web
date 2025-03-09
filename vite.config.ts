@@ -11,14 +11,14 @@ export default defineConfig({
 		globals: true,
 		coverage: {
 			provider: 'v8',
-			reporter: ['html', 'json', isCi ? 'text' : 'text-summary'],
+			reporter: ['html', 'clover', 'json', isCi ? 'text' : 'text-summary'],
 			all: true,
 			include: ['src/**/*.ts'],
-			reportsDirectory: './coverage',
+			reportsDirectory: 'coverage',
 			reportOnFailure: true,
 		},
 		reporters: ['default', 'junit'],
-		outputFile: './test-report.junit.xml',
+		outputFile: 'test-report.junit.xml',
 		snapshotFormat: {
 			escapeString: false,
 			printBasicPrototype: false,

@@ -22,7 +22,7 @@ curl \
 -o my.pdf
 ```
 
-each release has a version with all google fonts, sufixed with`-fonts`
+each release has a version with all google fonts, suffixed with`-fonts`
 
 ## Container Environment
 
