@@ -10,10 +10,11 @@ export default defineConfig({
 		globals: true,
 		coverage: {
 			provider: 'v8',
-			reporter: ['html', isCi ? 'text' : 'text-summary'],
+			reporter: ['json', isCi ? 'text' : 'text-summary'],
 			all: true,
 			include: ['src/**/*.ts'],
-			reportsDirectory: 'coverage',
+			reportsDirectory: './coverage',
+			reportOnFailure: true,
 		},
 		snapshotFormat: {
 			escapeString: false,
