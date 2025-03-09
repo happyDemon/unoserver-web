@@ -22,6 +22,8 @@ curl \
 -o my.pdf
 ```
 
+each release has a version with all google fonts, sufixed with`-fonts`
+
 ## Container Environment
 
 | Variable             | Description                                                                | Default |

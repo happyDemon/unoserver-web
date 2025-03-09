@@ -11,7 +11,7 @@ export default defineConfig({
 		globals: true,
 		coverage: {
 			provider: 'v8',
-			reporter: ['json', isCi ? 'text' : 'text-summary'],
+			reporter: ['html', 'json', isCi ? 'text' : 'text-summary'],
 			all: true,
 			include: ['src/**/*.ts'],
 			reportsDirectory: './coverage',
