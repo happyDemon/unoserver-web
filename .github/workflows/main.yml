@@ -10,11 +10,23 @@ jobs:
   tests:
     runs-on: ubuntu-22.04
     steps:
-      - name: Install base dependencies
-        run: apt-get install -y software-properties-common curl python3 python3-pip --upgrade
-      - name: Install LibreOffice & UnoServer
+      - uses: tecolicom/actions-use-apt-tools@v1
+        id: action
+        with:
+          repos: ppa:libreoffice/ppa
+          tools: software-properties-common curl python3 python3-pip
+          method: timestamp
+          key: unoserver-web-base
+
+      - uses: tecolicom/actions-use-apt-tools@v1
+        id: action-libre
+        with:
+          tools: --no-install-recommends libreoffice
+          method: timestamp
+          key: unoserver-web-libre
+
+      - name: Install UnoServer
         run: |
-          apt-get update && apt-get install -y --no-install-recommends libreoffice
           export PIP_BREAK_SYSTEM_PACKAGES=1 && pip install unoserver
 
       - name: Install Node.js
