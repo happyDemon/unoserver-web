@@ -10,7 +10,7 @@ ENV DEBIAN_FRONTEND noninteractive
 
 # Common libraries
 RUN apt-get update && \
-    apt-get install -y curl && \
+    apt-get install -y curl wget && \
     rm -rf /var/lib/apt/lists/*
 
 # Libreoffice
@@ -31,13 +31,26 @@ RUN apt-get update && \
 
 RUN corepack disable && corepack enable
 
+
+ARG GOOGLE_FONTS=0
+
+# Install google fonts
+RUN if [ "$GOOGLE_FONTS" = 1 ] ; \
+  then wget https://github.com/google/fonts/archive/main.tar.gz -O gf.tar.gz ; \
+    tar -xf gf.tar.gz ; \
+    mkdir -p /usr/share/fonts/truetype/google-fonts ; \
+    find $PWD/fonts-main/ -name "*.ttf" -exec install -m644 {} /usr/share/fonts/truetype/google-fonts/ \; || return 1 ; \
+    rm -f gf.tar.gz ; \
+fi
+
 # Some additional MS fonts for better WMF conversion
 COPY fonts/*.ttf /usr/share/fonts/
 
-RUN fc-cache -f -v
+RUN fc-cache -f -v && rm -rf /var/cache/*
 
 COPY pnpm-lock.yaml package.json ./
 
+RUN npm install -g corepack@latest
 RUN pnpm fetch
 
 COPY . .

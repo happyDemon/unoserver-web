@@ -8,7 +8,9 @@ import { type FastifyPluginCallback } from 'fastify'
 import httpErrors from 'http-errors'
 import mime from 'mime-types'
 
+import type { FailedFileConversion, FileConversion } from './plugins/store.js'
 import { convertFile } from './utils/convertFile.js'
+import { unoserver } from './utils/unoserver.js'
 import { upload } from './utils/upload.js'
 
 export const routes: FastifyPluginCallback = (app, options, next) => {
@@ -20,8 +22,19 @@ export const routes: FastifyPluginCallback = (app, options, next) => {
 				summary: 'Converts file using LibreOffice',
 				consumes: ['multipart/form-data'],
 				produces: ['application/octet-stream'],
-				params: { format: { type: 'string' } },
-				querystring: { filter: { type: 'string' } },
+				params: {
+					format: {
+						type: 'string',
+						description: 'The file type/extension of the output file (ex pdf)',
+					},
+				},
+				querystring: {
+					filter: {
+						type: 'string',
+						description:
+							'The export filter to use when converting. It is selected automatically if not specified.',
+					},
+				},
 				body: {
 					properties: { file: { type: 'string', format: 'binary' } },
 					required: ['file'],
@@ -41,7 +54,15 @@ export const routes: FastifyPluginCallback = (app, options, next) => {
 				'Expected "path" and "destination"',
 			)
 
+			const uuid = app.store.generateId()
+			app.store.register(uuid, req.file, req.params.format)
+
+			res.raw.on('error', (err: Error) =>
+				app.failedConversions.register(uuid, err.message),
+			)
+			res.raw.on('timeout', () => app.failedConversions.register(uuid, 'timeout'))
 			res.raw.on('close', () => {
+				app.store.remove(uuid)
 				rm(destination, { recursive: true }).catch(() => {
 					// ignore
 				})
@@ -64,6 +85,101 @@ export const routes: FastifyPluginCallback = (app, options, next) => {
 			res.send(stream)
 
 			return res
+		},
+	)
+
+	app.get(
+		'/status',
+		{
+			schema: {
+				summary: 'Lists the current load',
+				consumes: ['application/json'],
+				produces: ['application/json'],
+				response: {
+					'200': {
+						type: 'object',
+						properties: {
+							queue: {
+								type: 'object',
+								properties: {
+									queued: {
+										type: 'integer',
+										description: 'The number of queued items waiting to run.',
+									},
+									running: { type: 'integer', description: 'Number of running items.' },
+								},
+							},
+							workers: { type: 'integer', description: 'Maximum simultaneous workers' },
+							documents: {
+								type: 'array',
+								items: {
+									type: 'object',
+									properties: {
+										uuid: { type: 'string' },
+										name: { type: 'string' },
+										format: {
+											type: 'string',
+											description: 'The format the file will be converted to',
+										},
+										size: { type: 'integer', description: 'in bytes' },
+										start: { type: 'string', description: 'date/time string' },
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		async (req, res) => {
+			res.send({
+				queue: unoserver.jobs(),
+				workers:
+					process.env.MAX_WORKERS !== undefined ? Number(process.env.MAX_WORKERS) : 8,
+				documents: app.store.values().map((doc: FileConversion) => doc),
+			})
+		},
+	)
+	app.get(
+		'/failed',
+		{
+			schema: {
+				summary: `Lists the last ${app.failedConversions.limit()} failed conversions`,
+				description:
+					'This is not persisted, so it will be lost when the container restarts.',
+				consumes: ['application/json'],
+				produces: ['application/json'],
+				response: {
+					'200': {
+						type: 'object',
+						properties: {
+							errors: {
+								type: 'array',
+								items: {
+									type: 'object',
+									properties: {
+										uuid: { type: 'string' },
+										name: { type: 'string' },
+										format: {
+											type: 'string',
+											description: 'The format the file will be converted to',
+										},
+										size: { type: 'integer', description: 'in bytes' },
+										start: { type: 'string', description: 'date/time string' },
+										reason: { type: 'string' },
+										failedAt: { type: 'string', description: 'date/time string' },
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		async (req, res) => {
+			res.send({
+				errors: app.failedConversions.values().map((doc: FailedFileConversion) => doc),
+			})
 		},
 	)
 

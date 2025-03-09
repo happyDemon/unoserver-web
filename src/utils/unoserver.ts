@@ -43,6 +43,13 @@ export class Unoserver {
 		}
 	}
 
+	jobs(): any {
+		return {
+			queued: this.queue.size,
+			running: this.queue.pending,
+		}
+	}
+
 	/**
 	 * Converts source file to target file
 	 *
@@ -60,7 +67,7 @@ export class Unoserver {
 
 					const portCommandArg = ['--port', String(this.port)]
 					const filterCommandArg =
-						options?.filter !== undefined ? ['--filter', options.filter] : []
+						options?.filter !== undefined ? ['--output-filter', options.filter] : []
 
 					const commandArguments = [...portCommandArg, ...filterCommandArg, from, to]
 
@@ -81,4 +88,8 @@ export class Unoserver {
 
 export const unoserver = new Unoserver({
 	maxWorkers: process.env.MAX_WORKERS !== undefined ? Number(process.env.MAX_WORKERS) : 8,
+	timeout:
+		process.env.WORKER_JOB_TIMEOUT !== undefined
+			? Number(process.env.WORKER_JOB_TIMEOUT)
+			: 60000,
 })

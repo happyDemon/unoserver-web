@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs'
 import { type Server, type IncomingMessage, type ServerResponse } from 'node:http'
 
 import cors from '@fastify/cors'
@@ -7,9 +8,12 @@ import Fastify, { type FastifyInstance } from 'fastify'
 import multer from 'fastify-multer'
 import { type P, pino } from 'pino'
 
+import storePlugin from './plugins/store.js'
 import { transform } from './plugins/supportFilesInSchema.js'
 import { routes } from './routes.js'
 import { unoserver } from './utils/unoserver.js'
+
+const packageDefinition = JSON.parse(readFileSync('./package.json', 'utf8'))
 
 // https://github.com/fox1t/fastify-multer/blob/master/typings/fastify/index.d.ts
 interface File {
@@ -61,16 +65,19 @@ export function createApp({
 		}),
 	})
 
+	fastify.log.info(`Configuring app -- V${packageDefinition.version}`)
+
 	fastify.register(cors, { origin: '*', maxAge: 60 * 60 })
 
 	fastify.register(multer.contentParser)
+	fastify.register(storePlugin)
 
 	fastify.register(swagger, {
 		swagger: {
 			basePath: basePath === '' ? undefined : basePath,
 			info: {
 				title: 'unoserver-web',
-				version: '0.1.0',
+				version: packageDefinition.version,
 			},
 			consumes: ['application/json'],
 			produces: ['application/json'],

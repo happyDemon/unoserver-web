@@ -1,6 +1,6 @@
 {
 	"name": "unoserver-web",
-	"version": "0.7.0",
+	"version": "0.8.0",
 	"private": true,
 	"description": "Provides API for Unoserver",
 	"author": "Alex Kondratiuk <lynxtaa@gmail.com>",
@@ -33,7 +33,9 @@
 		"execa": "9.5.2",
 		"fastify": "4.28.0",
 		"fastify-multer": "2.0.3",
+		"fastify-plugin": "5.0.1",
 		"http-errors": "2.0.0",
+		"lru-cache": "11.0.2",
 		"mime-types": "2.1.35",
 		"p-queue": "8.0.1",
 		"p-retry": "6.2.1",
