@@ -1,4 +1,5 @@
 import { defineConfig } from 'vitest/config'
+import { codecovVitePlugin } from '@codecov/vite-plugin'
 
 const isCi = process.env.CI !== undefined
 
@@ -23,4 +24,11 @@ export default defineConfig({
 			printBasicPrototype: false,
 		},
 	},
+	plugins: [
+		codecovVitePlugin({
+			enableBundleAnalysis: process.env.CODECOV_TOKEN !== undefined,
+			bundleName: 'unoserver-web',
+			uploadToken: process.env.CODECOV_TOKEN,
+		}),
+	],
 })
